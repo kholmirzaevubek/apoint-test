@@ -22,6 +22,7 @@ docker compose up -d --build
 ```bash
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
 ```
 
 #### 4. Ensure Queue is running
