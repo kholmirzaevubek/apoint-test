@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\SmsMessageEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
             $table->string('phone');
             $table->text('message');
-            $table->string('status')->index();
+            $table->string('status')->default(SmsMessageEnum::STATUS_PENDING->value)->index();
             $table->string('provider');
             $table->string('provider_message_id')->nullable();
             $table->json('provider_response')->nullable();

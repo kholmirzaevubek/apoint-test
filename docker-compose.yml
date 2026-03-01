@@ -57,7 +57,19 @@ services:
       - apointsms-redis-data:/data
     networks:
       - apointsms
-
+  queue:
+    image: apointsms-php-image
+    container_name: apointsms-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: php artisan queue:work --tries=3 --timeout=60
+    depends_on:
+      - redis
+      - mysql
+    networks:
+      - apointsms
 networks:
   apointsms:
     driver: bridge
