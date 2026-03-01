@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  app:
+    image: apointsms-php-image
+    container_name: apointsms-app
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - apointsms
+
+  nginx:
+    image: nginx:alpine
+    container_name: apointsms-nginx
+    restart: unless-stopped
+    ports:
+      - ${NGINX_CONTAINER_PORT:-8000}:80
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - apointsms
+
+  mysql:
+    image: mysql:8.0
+    container_name: apointsms-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    ports:
+      - ${MYSQL_CONTAINER_PORT:-3306}:3306
+    volumes:
+      - apointsms-mysql-data:/var/lib/mysql
+    networks:
+      - apointsms
+
+  redis:
+    image: redis:latest
+    container_name: apointsms-redis
+    ports:
+      - ${REDIS_CONTAINER_PORT:-6379}:6379
+    restart: unless-stopped
+    volumes:
+      - apointsms-redis-data:/data
+    networks:
+      - apointsms
+
+networks:
+  apointsms:
+    driver: bridge
+
+volumes:
+  apointsms-mysql-data:
+    driver: local
+  apointsms-redis-data:
+    driver: local
+
